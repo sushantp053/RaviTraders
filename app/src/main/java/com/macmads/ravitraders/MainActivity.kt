@@ -3,6 +3,7 @@ package com.macmads.ravitraders
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
@@ -38,33 +39,41 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+@Composable
+fun WebViewScreen() {
+    var backEnable by remember { mutableStateOf(false) }
+    var webView: WebView? = null
 
-    @Composable
-    fun WebViewScreen() {
-        var backEnable by remember { mutableStateOf(false) }
-        var webView: WebView? = null
-
-        AndroidView(
-            modifier = Modifier,
-            factory = { context ->
-                WebView(context).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                    webViewClient = object : WebViewClient() {
-                        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                            backEnable = view!!.canGoBack()
-                        }
+    AndroidView(
+        modifier = Modifier,
+        factory = { context ->
+            WebView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+                webViewClient = object : WebViewClient() {
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        backEnable = view!!.canGoBack()
                     }
-                    settings.javaScriptEnabled = true
-                    loadUrl("https://ravitradersislampur.com/")
-                    webView = this
                 }
-            }, update = {
-                webView = it
-            })
-        BackHandler(enabled = backEnable) {
-            webView?.goBack()
-        }
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.loadsImagesAutomatically = true
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+
+                // Set cache mode
+                settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+
+                loadUrl("https://ravitradersislampur.com/")
+                webView = this
+            }
+        }, update = {
+            webView = it
+        })
+
+    BackHandler(enabled = backEnable) {
+        webView?.goBack()
+    }
 }
+
