@@ -3,6 +3,7 @@ package com.macmads.ravitraders
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -33,16 +34,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    WebViewScreen()
+                    WebViewScreen(this)
                 }
             }
         }
     }
 }
 @Composable
-fun WebViewScreen() {
+fun WebViewScreen(activity: ComponentActivity) {
     var backEnable by remember { mutableStateOf(false) }
     var webView: WebView? = null
+    var lUrl: String? = ""
+    val homeAddress = "https://ravitradersislampur.com/"
 
     AndroidView(
         modifier = Modifier,
@@ -55,6 +58,8 @@ fun WebViewScreen() {
                 webViewClient = object : WebViewClient() {
                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                         backEnable = view!!.canGoBack()
+                        lUrl = url
+
                     }
                 }
                 settings.javaScriptEnabled = true
@@ -62,10 +67,13 @@ fun WebViewScreen() {
                 settings.loadsImagesAutomatically = true
                 settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
-                // Set cache mode
-                settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                CookieManager.getInstance().setAcceptCookie(true)
 
-                loadUrl("https://ravitradersislampur.com/")
+                // Set cache mode
+//                settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                // Enable cookie storage
+
+                loadUrl(homeAddress)
                 webView = this
             }
         }, update = {
@@ -74,6 +82,7 @@ fun WebViewScreen() {
 
     BackHandler(enabled = backEnable) {
         webView?.goBack()
+
     }
 }
 
